@@ -3,3 +3,7 @@
 *.png
 *.zip
 output/forecasts/*.csv
+*.csv
+output/analyses/*.csv
+
+

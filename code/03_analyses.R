@@ -171,7 +171,6 @@ fun_bigchanges <- function(){
 
 fun_bigchanges()
 
-
 ######################
 # Using biggest changers in Absolute Value, rank list of biggest changes last quarter, remove if missing
 ######################
@@ -193,3 +192,5 @@ fun_bigchanges_absoluteValue()
 ######################
 # Using biggest changers in Percentage Change, rank list of biggest changes last quarter, remove if missing
 ######################
+
+output\analyses\combined_series_hist_forecasts.csv
