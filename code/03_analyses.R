@@ -173,7 +173,7 @@ fun_bigchanges()
 
 
 ######################
-# Using biggest changers, rank list of biggest changes last quarter, remove if missing
+# Using biggest changers in Absolute Value, rank list of biggest changes last quarter, remove if missing
 ######################
 
 fun_bigchanges_absoluteValue <- function(){
@@ -189,3 +189,7 @@ fun_bigchanges_absoluteValue <- function(){
 }
 
 fun_bigchanges_absoluteValue()
+
+######################
+# Using biggest changers in Percentage Change, rank list of biggest changes last quarter, remove if missing
+######################
