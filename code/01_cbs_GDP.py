@@ -3,7 +3,13 @@ import cbsodata
 import matplotlib.pyplot as plt
 import numpy as np
 import functools as ft
-import datetime
+from datetime import datetime
+
+######################################
+# Check For New Data
+######################################
+
+todayDate = datetime.today().strftime('%Y_%m_%d')
 
 pd.set_option('display.max_columns', 40)
 
@@ -52,7 +58,7 @@ def macro_data_cbs(identifier, verbose = False):
     return data
 
 NLD_basic_macro_data = macro_data_cbs(identifier = '84105NED', verbose = True)
-NLD_basic_macro_data.to_csv("data/cbs_basic_macro_allData_qt.csv")
+NLD_basic_macro_data.to_csv("data/cbs_basic_macro_allData_qt_" + todayDate+ ".csv")
 
 print(NLD_basic_macro_data)
 
