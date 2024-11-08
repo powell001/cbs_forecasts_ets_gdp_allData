@@ -293,7 +293,7 @@ fun_big_Percentagechanges_forecastedData <- function(rawDataFile){
     # percentage change
     df3$PercentChange <- 100 * df3[,'DifferForecast']/as.numeric(df3[,'YearAgo'])
 
-    return(df3)
+   
 
 }
 
