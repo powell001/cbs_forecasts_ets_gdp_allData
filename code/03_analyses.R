@@ -83,6 +83,9 @@ fun_bigchanges_absolute_percent <- function(rawDataFile){
     # dont understand those Totaal columns yet, remove them
     bigchangers_df <- bigchangers_df %>% select(-contains('Totaal'))
 
+    # get value four periods before last value
+    df_yearBefore <- bigchangers_df[nrow(bigchangers_df)-4,]
+
     # these are the absolute differences from four years previous
     df1 <- data.frame(diff(as.matrix(bigchangers_df),4))
     absoluteDiff_lastRow <- t(tail(df1,1))
