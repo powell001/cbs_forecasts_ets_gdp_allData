@@ -21,6 +21,9 @@ library(lmtest)
 # Possible analyses
 ##############################
 
+# unprocessed data
+rawDataFile <- "data/cbs_basic_macro_allData_qt.csv"
+
 ###
 # Combine all forecasts
 ###
@@ -33,6 +36,7 @@ for (fl in files[2:length(files)]) {
   file_df <- read.csv(fl)
   initial_df <- rbind(initial_df, file_df)
 }
+
 # View the merged data frame
 print(initial_df)
 write.table(initial_df, file = "output/analyses/combined_final_forecasts.csv", sep =",",row.names = FALSE)
@@ -47,6 +51,56 @@ files_FinalForecasts <- list.files("output/forecasts" , pattern = "final_forecas
 ###################################
 ###################################
 ###################################
+
+
+######################
+# Using biggest changers in Percentage Change, rank list of biggest changes last quarter, remove if missing
+######################
+
+fun_remove_Totaals <- function(rawDataFile){
+
+    print("REMOVE TOTAALS")
+
+    df1 <- read.csv(rawDataFile, stringsAsFactors=FALSE)
+    # dont understand those Totaal columns yet, remove them
+    df1 <- df1 %>% select(-contains('Totaal'))
+
+    write.table(df1, file = "data/cbs_basic_macro_allData_qt.csv", sep =",",row.names = FALSE)
+ }    
+
+fun_remove_Totaals(rawDataFile)
+
+fun_bigchanges_absolute_percent <- function(rawDataFile){
+    
+    bigchangers_df <- read.csv(rawDataFile, stringsAsFactors=FALSE)
+
+    # create row names from list of variables, then drop variables so all columns numeric
+    rownames(bigchangers_df) <- bigchangers_df[,1] 
+    bigchangers_df <- bigchangers_df[,-1]
+
+    # dont understand those Totaal columns yet, remove them
+    bigchangers_df <- bigchangers_df %>% select(-contains('Totaal'))
+
+    # these are the absolute differences from four years previous
+    df1 <- data.frame(diff(as.matrix(bigchangers_df),4))
+    absoluteDiff_lastRow <- t(tail(df1,1))
+
+     # divide last column by column 4 periods before and divide by that same column
+    percent_YearBefore <- t(100*(absoluteDiff_lastRow/df_yearBefore))
+
+    # merge the two dataframes
+    mrg1 <- merge(percent_YearBefore, absoluteDiff_lastRow, by = 'row.names', all = TRUE)
+
+    # order, sort data
+    lastCol <- tail(names(mrg1),1)
+    o <- order(abs(mrg1[,lastCol]), decreasing = TRUE)
+    output1 <- mrg1[o, ]#[c(1,ncol(mrg1))]
+
+    write.table(output1, file = "output/analyses/real_changes_yearBefore.csv", sep =",",row.names = FALSE)
+}    
+
+fun_bigchanges_absolute_percent(rawDataFile)
+
 
 fun_make_figures <- function(raw_data){
     index <- 0
@@ -117,7 +171,7 @@ fun_ETS_Used <- function(){
 fun_ETS_Used()
 
 ######################
-# Biggest change since a year before
+# Biggest change since a year before, based on Forecasts
 ######################
 
 fun_bigchanges <- function(){
@@ -172,25 +226,34 @@ fun_bigchanges <- function(){
 fun_bigchanges()
 
 ######################
-# Using biggest changers in Absolute Value, rank list of biggest changes last quarter, remove if missing
+# Forecasts, using biggest changers in absolute value, rank list of biggest changes last quarter with forecast, remove if missing
 ######################
 
-fun_bigchanges_absoluteValue <- function(){
+fun_bigchanges_absoluteValue_forecastedData <- function(){
     myfile <- "output/analyses/combined_series_hist_forecasts.csv"
     bigchangers_df <- read.csv(myfile, stringsAsFactors=FALSE)
+
+    bigchangers_df <- bigchangers_df[!grepl("Totaal", bigchangers_df$series_name),]
 
     names(bigchangers_df) <- format(as.Date(paste0(names(bigchangers_df)), 'X%Y.%m.%d'))
     lastCol <- tail(names(bigchangers_df),1)
     o <- order(abs(bigchangers_df[,lastCol]), decreasing = TRUE)
     output1 <- bigchangers_df[o, ][c(1,ncol(bigchangers_df))]
 
-    write.table(output1, file = "output/analyses/bigchanges_absoluteValue.csv", sep =",",row.names = FALSE)
+    write.table(output1, file = "output/analyses/forecasts_changes_absoluteValue.csv", sep =",",row.names = FALSE)
 }
 
-fun_bigchanges_absoluteValue()
+fun_bigchanges_absoluteValue_forecastedData()
+
 
 ######################
-# Using biggest changers in Percentage Change, rank list of biggest changes last quarter, remove if missing
+# Forecasts, using biggest changers in percentage, rank list of biggest changes last quarter with forecast, remove if missing
 ######################
 
-output\analyses\combined_series_hist_forecasts.csv
+# get forecasts from combined_final_forecasts.csv
+myfile <- "output/analyses/combined_series_hist_forecasts.csv"
+df1 <- read.csv(myfile, stringsAsFactors=FALSE)
+diff_forecast <- df1[, c(1,ncol(df1))]
+
+# absolute value a year before
+rawDataFile

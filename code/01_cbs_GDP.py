@@ -5,13 +5,13 @@ import numpy as np
 import functools as ft
 from datetime import datetime
 
-######################################
-# Check For New Data
-######################################
-
 todayDate = datetime.today().strftime('%Y_%m_%d')
 
 pd.set_option('display.max_columns', 40)
+
+######################################
+# Check For New Data
+######################################
 
 ###################################
 # https://cbsodata.readthedocs.io/en/latest/readme_link.html
