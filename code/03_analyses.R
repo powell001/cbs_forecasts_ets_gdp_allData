@@ -16,6 +16,8 @@ library(funtimes)
 library(seastests)
 library(car)
 library(lmtest)
+library(data.table)
+library(lubridate)
 
 ##############################
 # Possible analyses
@@ -250,10 +252,46 @@ fun_bigchanges_absoluteValue_forecastedData()
 # Forecasts, using biggest changers in percentage, rank list of biggest changes last quarter with forecast, remove if missing
 ######################
 
-# get forecasts from combined_final_forecasts.csv
-myfile <- "output/analyses/combined_series_hist_forecasts.csv"
-df1 <- read.csv(myfile, stringsAsFactors=FALSE)
-diff_forecast <- df1[, c(1,ncol(df1))]
 
-# absolute value a year before
-rawDataFile
+fun_big_Percentagechanges_forecastedData <- function(rawDataFile){ 
+
+    # get forecasts from combined_final_forecasts.csv
+    myfile <- "output/analyses/combined_series_hist_forecasts.csv"
+    df1 <- read.csv(myfile, stringsAsFactors=FALSE)
+
+    # get name of varible and forecast (last column)
+    forecast1 <- df1[, c(1,ncol(df1))]
+
+    # move variable name to rowname
+    rownames(forecast1) <- forecast1[,1] 
+
+    # change format of date
+    names(forecast1) <- format(as.Date(paste0(names(forecast1)), 'X%Y.%m.%d'))
+
+    # get date that is one year before
+    dateColumnWeWant <- as.Date(names(forecast1)[2]) - years(1)
+
+    ### Read in raw data
+    # absolute value a year before
+    df1 <- read.csv(rawDataFile, stringsAsFactors=FALSE)
+
+    # select row equal to the date we want
+    df2 <- as.data.frame(t(df1[df1$X %like% dateColumnWeWant,]), stringsAsFactors=FALSE)
+
+    # merge the two dataframes
+    df3 <- merge(forecast1, df2, by = 'row.names')
+
+    # remove redundant columns
+    df3[,c(2)] <- NULL
+
+    # meaningful column names
+    names(df3) <- c("Row.names", "DifferForecast", "YearAgo")
+
+    # percentage change
+    df3$PercentChange <- 100 * df3[,'DifferForecast']/as.numeric(df3[,'YearAgo'])
+
+    return(df3)
+
+}
+
+fun_big_Percentagechanges_forecastedData(rawDataFile)
