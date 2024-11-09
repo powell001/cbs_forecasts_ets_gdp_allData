@@ -35,8 +35,12 @@ library(lmtest)
 ##########################
 
 # load data
-dt1 <- read.csv("data/cbs_basic_macro_allData_qt.csv", sep = ",")
+dt1 <- read.csv("data/cbs_basic_macro_allData_qt_2024_11_09.csv", sep = ",")
 summary(dt1)
+
+# remove files
+do.call(file.remove, list(list.files("output/forecasts", full.names = TRUE)))
+do.call(file.remove, list(list.files("output/figures", full.names = TRUE)))
 
 # not appropriate for negative numbers
 # dt1 <- dt1[ , !(names(dt1) %in% drops)]

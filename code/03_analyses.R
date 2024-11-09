@@ -24,7 +24,11 @@ library(lubridate)
 ##############################
 
 # unprocessed data
-rawDataFile <- "data/cbs_basic_macro_allData_qt.csv"
+rawDataFile <- "data/cbs_basic_macro_allData_qt_2024_11_09.csv"
+
+# remove files
+do.call(file.remove, list(list.files("output/analyses", full.names = TRUE)))
+
 
 ###
 # Combine all forecasts
@@ -39,8 +43,16 @@ for (fl in files[2:length(files)]) {
   initial_df <- rbind(initial_df, file_df)
 }
 
+# Remove duplicates
+initial_df <- initial_df[!duplicated(initial_df[, c(2,3)]),]
+
+# Remove Totaal
+ initial_df <- initial_df[!grepl("Totaal", initial_df[['Key1']]),]
+
 # View the merged data frame
 print(initial_df)
+
+
 write.table(initial_df, file = "output/analyses/combined_final_forecasts.csv", sep =",",row.names = FALSE)
 
 ###
@@ -53,7 +65,6 @@ files_FinalForecasts <- list.files("output/forecasts" , pattern = "final_forecas
 ###################################
 ###################################
 ###################################
-
 
 ######################
 # Using biggest changers in Percentage Change, rank list of biggest changes last quarter, remove if missing
@@ -94,8 +105,12 @@ fun_bigchanges_absolute_percent <- function(rawDataFile){
     percent_YearBefore <- t(100*(absoluteDiff_lastRow/df_yearBefore))
 
     # merge the two dataframes
-    mrg1 <- merge(percent_YearBefore, absoluteDiff_lastRow, by = 'row.names', all = TRUE)
+    mrg1 <- merge(t(df_yearBefore), absoluteDiff_lastRow, by = 'row.names', all = TRUE)
 
+    # remove duplicates
+    lastCol <- ncol(mrg1)
+    mrg1 <- mrg1[!duplicated(mrg1[, c(lastCol-1, lastCol)]),]
+    
     # order, sort data
     lastCol <- tail(names(mrg1),1)
     o <- order(abs(mrg1[,lastCol]), decreasing = TRUE)
@@ -170,6 +185,9 @@ fun_ETS_Used <- function(){
     initial_df <- rbind(initial_df, file_df[1,c(3,1)])
     } 
 
+    initial_df <- initial_df[!grepl("Totaal", initial_df[['SeriesName']]),]
+
+
     write.table(initial_df, file = "output/analyses/combined_model_used.csv", sep =",",row.names = FALSE)
 }
 
@@ -225,7 +243,16 @@ fun_bigchanges <- function(){
     }
 
     series_hist_forecast <- list_rbind(mylist)
-    write.table(series_hist_forecast, file = "output/analyses/combined_series_hist_forecasts.csv", sep =",",row.names = FALSE)
+
+    # remove duplicates
+    lastCol <- ncol(series_hist_forecast)
+    output1 <- series_hist_forecast[!duplicated(series_hist_forecast[, c(lastCol-1, lastCol)]),]
+
+    # remove Totaal
+    output1 <- output1[!grepl("Totaal", output1[['series_name']]),]
+
+
+    write.table(output1, file = "output/analyses/combined_series_hist_forecasts.csv", sep =",",row.names = FALSE)
 }
 
 fun_bigchanges()
@@ -245,7 +272,14 @@ fun_bigchanges_absoluteValue_forecastedData <- function(){
     o <- order(abs(bigchangers_df[,lastCol]), decreasing = TRUE)
     output1 <- bigchangers_df[o, ][c(1,ncol(bigchangers_df))]
 
-    write.table(output1, file = "output/analyses/forecasts_changes_absoluteValue.csv", sep =",",row.names = FALSE)
+    # omit na
+    output1 <- na.omit(output1)
+
+    # remove duplicates
+    output2 <- output1[!duplicated(output1[, c(2)]),]
+    
+
+    write.table(output2, file = "output/analyses/forecasts_changes_absoluteValue.csv", sep =",",row.names = FALSE)
 }
 
 fun_bigchanges_absoluteValue_forecastedData()
@@ -293,7 +327,19 @@ fun_big_Percentagechanges_forecastedData <- function(rawDataFile){
     # percentage change
     df3$PercentChange <- 100 * df3[,'DifferForecast']/as.numeric(df3[,'YearAgo'])
 
-   
+    secondCol <- tail(names(df3))[2]  ################## Careful, this might change
+    o <- order(abs(as.numeric(df3[,secondCol])), decreasing = TRUE)
+    output1 <- df3[o, ]#[c(1,ncol(df3))]
+
+    # remove duplicates
+    lastCol <- ncol(output1)
+    output1 <- output1[!duplicated(output1[, c(lastCol-1, lastCol)]),]
+
+    output2 <- output1[!grepl("Totaal", output1[['Row.names']]),]
+
+  
+
+    write.table(output2, file = "output/analyses/forecasts_changes_percentageChange.csv", sep =",",row.names = FALSE)
 
 }
 
