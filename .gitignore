@@ -1,9 +1,9 @@
 .venv
-../*.csv
+./*.csv
 *.png
 *.zip
 output/forecasts/*.csv
 *.csv
 output/analyses/*.csv
-
+data/*.csv
 
