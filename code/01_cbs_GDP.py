@@ -39,7 +39,7 @@ def macro_data_cbs(identifier, verbose = False):
         data.to_csv("data/tmp_ramdata.csv")
         print(data.Perioden)
 
-    data = data[data["SoortGegevens"] == 'Prijsniveau 2015']
+    data = data[data["SoortGegevens"] == 'Prijsniveau 2021, seizoengecorrigeerd']
     data = data[data['Perioden'].str.contains('kwartaal')]
     data.index = pd.date_range(start = start_date, periods = data.shape[0], freq = "Q").to_period('Q')
 
@@ -56,8 +56,9 @@ def macro_data_cbs(identifier, verbose = False):
     data.index = pd.PeriodIndex(data.index, freq='Q').to_timestamp() #+ datetime.timedelta(days=1) #pd.offsets.QuarterEnd()
 
     return data
+    
 
-NLD_basic_macro_data = macro_data_cbs(identifier = '84105NED', verbose = True)
+NLD_basic_macro_data = macro_data_cbs(identifier = '85879NED', verbose = True)
 NLD_basic_macro_data.to_csv("data/cbs_basic_macro_allData_qt_" + todayDate+ ".csv")
 
 print(NLD_basic_macro_data)
